@@ -1,5 +1,6 @@
 import type { Producto } from '../services/ecommerce/productos.services';
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 interface ProductCardProps {
   producto: Producto;
@@ -8,8 +9,14 @@ interface ProductCardProps {
 
 export default function ProductCard({ producto, onAddCart }: ProductCardProps) {
   const [imageError, setImageError] = useState(false);
+  const navigate = useNavigate();
 
-  const handleAddCart = () => {
+  const handleCardClick = () => {
+    navigate(`/product/${producto.id}`);
+  };
+
+  const handleAddCart = (e: React.MouseEvent) => {
+    e.stopPropagation();
     if (onAddCart) {
       onAddCart(producto);
     }
@@ -20,7 +27,11 @@ export default function ProductCard({ producto, onAddCart }: ProductCardProps) {
   };
 
   return (
-    <div className="card h-100 shadow-sm hover-shadow">
+    <div 
+      className="card h-100 shadow-sm hover-shadow" 
+      onClick={handleCardClick}
+      style={{ cursor: 'pointer' }}
+    >
       <div style={{ height: '200px', overflow: 'hidden', backgroundColor: '#f0f0f0' }}>
         {!imageError && producto.imagen ? (
           <img
@@ -52,12 +63,15 @@ export default function ProductCard({ producto, onAddCart }: ProductCardProps) {
             <h5 className="mb-0 text-primary">
               ${producto.precio.toFixed(2)}
             </h5>
-            <button
-              className="btn btn-primary btn-sm"
-              onClick={handleAddCart}
-              disabled={producto.stock === 0}
+            <button 
+              className="btn btn-sm btn-outline-primary"
+              onClick={(e) => {
+                e.stopPropagation();
+                if (onAddCart) onAddCart(producto);
+              }}
+              disabled={producto.stock <= 0}
             >
-              Agregar
+              <i className="bi bi-cart-plus"></i> Añadir
             </button>
           </div>
         </div>
